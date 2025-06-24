@@ -39,7 +39,7 @@ const SamplingFreqAccelero = 5120;
 
 // Chart Dimensions
 const GyroDimensions = 2000 ;
-const AcceleroDimensions = 4000 ;
+const AcceleroDimensions = 400 ;
 const ImpactDimensions = 2.4 ;
 
 const staticColors = [
@@ -72,10 +72,10 @@ const ChartBlock = ({
     title === 'Accelerometer' ? SamplingFreqAccelero :  
     SamplingFreqImpact;
 
-   const timeLabels = series[0]?.data.map((_, idx) =>                       // uncomment these two lines for shifting the plots
-   `${((idx * (1000 / sampleFreq)) + startTimeOffset).toFixed(1)}`          // uncomment these two lines for shifting the plots
-   // const timeLabels = series[0]?.data.map((_, idx) =>                          // uncomment these two lines for not shifting the plots
-   // `${(idx * (1000 / sampleFreq)).toFixed(1)}`                                 // uncomment these two lines for not shifting the plots
+    const timeLabels = series[0]?.data.map((_, idx) =>                       // uncomment these two lines for shifting the plots
+    `${((idx * (1000 / sampleFreq)) + startTimeOffset).toFixed(1)}`          // uncomment these two lines for shifting the plots
+//    const timeLabels = series[0]?.data.map((_, idx) =>                          // uncomment these two lines for not shifting the plots
+//   `${(idx * (1000 / sampleFreq)).toFixed(1)}`                                 // uncomment these two lines for not shifting the plots
 );
 
   const chartData = { // Maps input series to Chart.js datasets.
@@ -611,7 +611,7 @@ const BLEConnector = ({ onSensorData }: { onSensorData: (data: { [key: string]: 
         }
       
         for (let i = startIdx; i < view.byteLength; i += 2) {
-          samples.push(view.getInt16(i, false)); // big endian
+          samples.push(view.getInt16(i, true));
         }
         multipler = 1 / 16.4;
       }
@@ -637,6 +637,8 @@ const BLEConnector = ({ onSensorData }: { onSensorData: (data: { [key: string]: 
         console.log('🔴 Impact');
       
         columnIndex = satOffset + 6;
+        // temArr = [34,7,..]
+        // k=0;
         if (sensorStartTimesRef.current[baseIndex + 2] === 0) {
           rawStartTimesRef.current[baseIndex + 2] = startTime;
           sensorStartTimesRef.current[baseIndex + 2] = startTime;
@@ -738,16 +740,16 @@ const downloadCSV = async (sensorMatrix: number[][]) => {
     alert('No data to export!');
     return;
   }
- const rows = sensorMatrix.map((row, i) => {
-  const rowValues = row.map(val => (val !== null ? val.toFixed(4) : '0'));
-  return rowValues.join(',');
+const rows = sensorMatrix.map((row, i) => {
+ //  const rowValues = row.map(val => (val !== null ? val.toFixed(4) : '0'));
+ //  return rowValues.join(',');
 
-  // const rowValues = row.map(val => (val !== null ? val.toFixed(4) : '0'));
-// 
-  // const raw = i < 15 ? rawStartTimesRef.current[i].toString() : '';
-  // const normalized = i < 15 ? sensorStartTimesRef.current[i].toString() : '';
-// 
-  // return [...rowValues, raw, normalized].join(',');
+ const rowValues = row.map(val => (val !== null ? val.toFixed(4) : '0'));
+
+ const raw = i < 15 ? rawStartTimesRef.current[i].toString() : '';
+ const normalized = i < 15 ? sensorStartTimesRef.current[i].toString() : '';
+
+ return [...rowValues, raw, normalized].join(',');
 });
 
 // === Headers: Descriptive labels for each column ===
